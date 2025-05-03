@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LRS 2020 Telangana Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      background: #f4f4f4;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .output {
+      background: #fff;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 20px;
+      line-height: 1.8;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 15px;
+      width: 100%;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>LRS 2020 Telangana Calculator</h2>
+  <label>Plot Area (sq yd)</label>
+  <input type="number" id="plotArea">
+
+  <label>Sub-Registrar Rate (Old) (₹/sq yd)</label>
+  <input type="number" id="oldRate">
+
+  <label>Sub-Registrar Rate (New) (₹/sq yd)</label>
+  <input type="number" id="newRate">
+
+  <label>Open Space Available?</label>
+  <select id="openSpace">
+    <option value="yes">Yes</option>
+    <option value="no">No</option>
+  </select>
+
+  <label>Plot Belongs to Slum Area?</label>
+  <select id="slumArea">
+    <option value="yes">Yes</option>
+    <option value="no">No</option>
+  </select>
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div class="output" id="results"></div>
+
+  <script>
+    function calculate() {
+      const plotArea = parseFloat(document.getElementById('plotArea').value);
+      const oldRate = parseFloat(document.getElementById('oldRate').value);
+      const newRate = parseFloat(document.getElementById('newRate').value);
+      const openSpace = document.getElementById('openSpace').value.toLowerCase();
+      const slumArea = document.getElementById('slumArea').value.toLowerCase();
+
+      const effectiveArea = plotArea * 0.836127;
+      const totalReg = slumArea === 'yes' ? effectiveArea * 5 : effectiveArea * oldRate;
+
+      let percent;
+      let slabLabel;
+      if (newRate < 3000) {
+        percent = 0.2;
+        slabLabel = "20% slab";
+      } else if (newRate <= 5000) {
+        percent = 0.3;
+        slabLabel = "30% slab";
+      } else if (newRate <= 10000) {
+        percent = 0.4;
+        slabLabel = "40% slab";
+      } else if (newRate <= 20000) {
+        percent = 0.5;
+        slabLabel = "50% slab";
+      } else if (newRate <= 30000) {
+        percent = 0.6;
+        slabLabel = "60% slab";
+      } else if (newRate <= 50000) {
+        percent = 0.8;
+        slabLabel = "80% slab";
+      } else {
+        percent = 1.0;
+        slabLabel = "100% slab";
+      }
+
+      const payableReg = totalReg * percent;
+      const openSpaceCharge = openSpace === 'yes' ? plotArea * oldRate * 0.14 : 0;
+      const totalLRS = payableReg + openSpaceCharge;
+      const afterRebate = totalLRS * 0.75;
+
+      document.getElementById('results').innerHTML = `
+        <strong>Effective Area (sqm):</strong> ${effectiveArea.toFixed(2)}<br><br>
+        <strong>Total Regularisation (before %):</strong> ₹${totalReg.toFixed(2)}<br><br>
+        <strong>Applicable Slab:</strong> ${slabLabel}<br><br>
+        <strong>Payable Regularisation Charges:</strong> ₹${payableReg.toFixed(2)}<br><br>
+        <strong>Open Space Charges:</strong> ₹${openSpaceCharge.toFixed(2)}<br><br>
+        <strong>Total LRS Charges:</strong> ₹${totalLRS.toFixed(2)}<br><br>
+        <strong>Final Total After 25% Rebate:</strong> ₹${afterRebate.toFixed(2)}
+      `;
+    }
+  </script>
+</body>
+</html>
